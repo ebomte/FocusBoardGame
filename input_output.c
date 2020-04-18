@@ -5,6 +5,7 @@
 #include "input_output.h"
 #include "stackInit.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include "startGame.h"
 
@@ -26,21 +27,21 @@ void print_board(square board[BOARD_SIZE][BOARD_SIZE]){
 //    {
 //
 //    }
-    printf("\t0\t1\t2\t3\t4\t5\t6\t7\n");
+    printf("\t0   \t1 \t2 \t3  \t4 \t  5 \t6 \t7 \n");
     for(int i = 0; i < BOARD_SIZE; i ++){
         printf("%d ", countR++);
         for (int j = 0; j < BOARD_SIZE; j++){
             if(board[i][j].type == VALID) {
                 if(board[i][j].stack == NULL)
-                    printf("|   ");
+                    printf(" |   ");
                 else{
                     if (board[i][j].stack->p_color == GREEN)
-                        printf("| G ");
-                    else printf("| R ");
+                        printf("| G%d ", board[i][j].num_pieces);
+                    else printf("| R%d ", board[i][j].num_pieces);
                 }
             }
             else
-                printf("| - ");
+                printf(" | - ");
         }
         printf("|\n");
     }
@@ -93,6 +94,13 @@ void managePlayers(player players[PLAYERS_NUM], square board[BOARD_SIZE][BOARD_S
      *
      *             +++ move that whole onto the top piece of the square the user is (moving to)
      *                [[[push the stack on current stack to the stack on square moving to using push operation
+     *       #i need a variable to represent the top of the stack
+     *           %this top variable will be incremented by the number of pieces moving. eg. if one stack (w/1 piece) is moving top = top + 1,
+     *           %if one stack (w/2 pieces) is moving, top = top + 2, etc. (the number of pieces on the square)
+     *           %also keep the note of the current colour as the top increases.
+     *
+     *
+     *
      *                    -+- increment the top piece of the stack moving to by the number of pieces on the square moving from
      *                    -+- then set the incremented top piece to equal the top piece of stack the user wants to move
      *                    -+-
@@ -159,7 +167,9 @@ void managePlayers(player players[PLAYERS_NUM], square board[BOARD_SIZE][BOARD_S
                         }else{
                             if(board[userRow][userColumn - currentSquarePieces].type==VALID) {
                                 printf("hey\n");
+                                //pushItems();
                                 moveItems(board,userRow,userColumn,currentSquarePieces);
+                                print_board(board);
                             }
                         }
                         break;
@@ -248,12 +258,37 @@ square moveItems(square board[BOARD_SIZE][BOARD_SIZE], int userRow, int userColu
 {
     square num1_pieces = board[userRow][userColumn - currentNumberOfPieces];
     int tempNumPieces = num1_pieces.num_pieces;
-    int newNumPieces = tempNumPieces + currentNumberOfPieces;
-    board[userRow][userColumn - currentNumberOfPieces].stack = board[userRow][userColumn].stack;
+    struct piece *top = board[userRow][userColumn].stack;
+
+    struct piece *curr = top;
+    while(curr->next != NULL) {
+        curr = curr->next;
+        curr->p_color = curr->next->p_color;
+        curr->next = board[userRow][userColumn - currentNumberOfPieces].stack;
+    }
+    //curr->next = board[userRow][userColumn - currentNumberOfPieces].stack;
+    board[userRow][userColumn - currentNumberOfPieces].stack = top;
+    board[userRow][userColumn - currentNumberOfPieces].num_pieces = tempNumPieces + currentNumberOfPieces;
+
     board[userRow][userColumn].num_pieces = 0;
+    board[userRow][userColumn].stack = NULL;
+
+//    square num1_pieces = board[userRow][userColumn - currentNumberOfPieces];
+//    int tempNumPieces = num1_pieces.num_pieces;
+//    int newNumPieces = tempNumPieces + currentNumberOfPieces;
+//    board[userRow][userColumn - currentNumberOfPieces].stack = board[userRow][userColumn].stack;
+//    board[userRow][userColumn].num_pieces = 0;
 }
 
-void pushItems()
-{
-    
-}
+//void pushItems()
+//{
+//    struct piece *top = NULL;
+//    newPiece = (struct piece*)malloc(sizeof(struct piece));
+//
+//    if(!newPiece)
+//    {
+//        perror("Stack is FULL");
+//    }
+//
+//    newPiece->p_color =
+//}
