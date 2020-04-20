@@ -10,7 +10,6 @@
 #include "startGame.h"
 
 bool findWinner(square board[BOARD_SIZE][BOARD_SIZE]);
-square moveItems(square board[BOARD_SIZE][BOARD_SIZE], int userRow, int userColumn, int currentNumberOfPieces);
 /* FUnction to print the board:
 * Invalid Squares are printed as | - |
 * Valid empty squares are printed as |   |
@@ -93,7 +92,7 @@ void managePlayers(player players[PLAYERS_NUM], square board[BOARD_SIZE][BOARD_S
      *                       \\the top piece colour can change
      *
      *             +++ move that whole onto the top piece of the square the user is (moving to)
-     *                [[[push the stack on current stack to the stack on square moving to using push operation
+     *                [[[push the stack on current square to the stack on square moving to using push operation
      *       #i need a variable to represent the top of the stack
      *           %this top variable will be incremented by the number of pieces moving. eg. if one stack (w/1 piece) is moving top = top + 1,
      *           %if one stack (w/2 pieces) is moving, top = top + 2, etc. (the number of pieces on the square)
@@ -168,7 +167,7 @@ void managePlayers(player players[PLAYERS_NUM], square board[BOARD_SIZE][BOARD_S
                             if(board[userRow][userColumn - currentSquarePieces].type==VALID) {
                                 printf("hey\n");
                                 //pushItems();
-                                moveItems(board,userRow,userColumn,currentSquarePieces);
+                                moveItemsLeft(board,userRow,userColumn,currentSquarePieces);
                                 print_board(board);
                             }
                         }
@@ -178,7 +177,8 @@ void managePlayers(player players[PLAYERS_NUM], square board[BOARD_SIZE][BOARD_S
                             perror("out of bounds");
                         }else{
                             if(board[userRow][userColumn + currentSquarePieces].type==VALID) {
-
+                                moveItemsRight(board,userRow,userColumn,currentSquarePieces);
+                                print_board(board);
                             }
                         }
                         break;
@@ -187,7 +187,8 @@ void managePlayers(player players[PLAYERS_NUM], square board[BOARD_SIZE][BOARD_S
                             perror("out of bounds");
                         }else{
                             if(board[userRow - currentSquarePieces][userColumn].type==VALID) {
-
+                                moveItemsUp(board,userRow,userColumn,currentSquarePieces);
+                                print_board(board);
                             }
                         }
                         break;
@@ -196,7 +197,8 @@ void managePlayers(player players[PLAYERS_NUM], square board[BOARD_SIZE][BOARD_S
                             perror("out of bounds");
                         }else{
                             if(board[userRow + currentSquarePieces][userColumn].type==VALID) {
-
+                                moveItemsDown(board,userRow,userColumn,currentSquarePieces);
+                                print_board(board);
                             }
                         }
                         break;
@@ -207,7 +209,18 @@ void managePlayers(player players[PLAYERS_NUM], square board[BOARD_SIZE][BOARD_S
 }
 
 
-
+/*This function is to determine the winner of the game. It is boolean function to return either true  or false if certain conditions are meant.
+ * I am storing the number of pieces in a int variable to allow for incrementation.
+ * I check to see it the current square of the board the loop is a valid square.
+ * Then I check to see the number of pieces on the square is greater than 0, and if it is then there is a stack on the square.
+ * Then I increment a int variable counter by 1, each time this condition is meant.
+ * Furthermore, I check to to see what the top colour of that square the loop is on.
+ * If the colour is red, then I increment a int variable counter by 1, if it is green, the same is done.
+ * Once the loop is done looping or terminates, I check to see if the counts are the same.
+ * I check to see if count for red colour is the same as the count for the square counter, if it is, then RED has won.
+ * If the green colour is the same as the count for square counter, if is then GREEN has won.
+ * If non of the statements are true, then the function returns false, meaning no one has won yet.
+ * This is how the players keep playing even though there are only 2 items in the players array.*/
 
 bool findWinner(square board[BOARD_SIZE][BOARD_SIZE])
 {
@@ -253,42 +266,3 @@ bool findWinner(square board[BOARD_SIZE][BOARD_SIZE])
         return false;
     }
 }
-
-square moveItems(square board[BOARD_SIZE][BOARD_SIZE], int userRow, int userColumn, int currentNumberOfPieces)
-{
-    square num1_pieces = board[userRow][userColumn - currentNumberOfPieces];
-    int tempNumPieces = num1_pieces.num_pieces;
-    struct piece *top = board[userRow][userColumn].stack;
-
-    struct piece *curr = top;
-    while(curr->next != NULL) {
-        curr = curr->next;
-        curr->p_color = curr->next->p_color;
-        curr->next = board[userRow][userColumn - currentNumberOfPieces].stack;
-    }
-    //curr->next = board[userRow][userColumn - currentNumberOfPieces].stack;
-    board[userRow][userColumn - currentNumberOfPieces].stack = top;
-    board[userRow][userColumn - currentNumberOfPieces].num_pieces = tempNumPieces + currentNumberOfPieces;
-
-    board[userRow][userColumn].num_pieces = 0;
-    board[userRow][userColumn].stack = NULL;
-
-//    square num1_pieces = board[userRow][userColumn - currentNumberOfPieces];
-//    int tempNumPieces = num1_pieces.num_pieces;
-//    int newNumPieces = tempNumPieces + currentNumberOfPieces;
-//    board[userRow][userColumn - currentNumberOfPieces].stack = board[userRow][userColumn].stack;
-//    board[userRow][userColumn].num_pieces = 0;
-}
-
-//void pushItems()
-//{
-//    struct piece *top = NULL;
-//    newPiece = (struct piece*)malloc(sizeof(struct piece));
-//
-//    if(!newPiece)
-//    {
-//        perror("Stack is FULL");
-//    }
-//
-//    newPiece->p_color =
-//}
